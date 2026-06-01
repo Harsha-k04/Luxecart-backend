@@ -80,7 +80,9 @@ router.post("/login", async (req, res) => {
 const protect = require("../middleware/authMiddleware");
 
 router.get("/me", protect, async (req, res) => {
-    res.json(req.user);
+    const user = await User.findById(req.user._id).select("-password");
+
+    res.json(user);
 });
 
 

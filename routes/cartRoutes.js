@@ -43,32 +43,71 @@ router.post("/add", protect, async (req, res) => {
 });
 // UPDATE quantity
 router.put("/update", protect, async (req, res) => {
-    const { productId, quantity } = req.body;
+    try {
+        const { productId, quantity } = req.body;
 
-    const cart = await Cart.findOne({ user: req.user });
+        const cart = await Cart.findOne({ user: req.user });
 
-    const item = cart.items.find(
-        (i) => i.product.toString() === productId
-    );
+        if (!cart) {
+            return res.status(404).json({
+                message: "Cart not found",
+            });
+        }
 
-    if (item) {
-        item.quantity = quantity;
+        const item = cart.items.find(
+            (i) => i.product.toString() === productId
+        );
+
+        if (item) {
+            item.quantity = quantity;
+        }
+
+        await cart.save();
+
+        const updatedCart = await Cart.findOne({
+            user: req.user,
+        }).populate("items.product");
+
+        res.json(updatedCart);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
     }
-
-    await cart.save();
-    res.json(cart);
 });
 
 // REMOVE item
 router.delete("/remove/:productId", protect, async (req, res) => {
-    const cart = await Cart.findOne({ user: req.user });
+    try {
+        const cart = await Cart.findOne({
+            user: req.user,
+        });
 
-    cart.items = cart.items.filter(
-        (i) => i.product.toString() !== req.params.productId
-    );
+        if (!cart) {
+            return res.status(404).json({
+                message: "Cart not found",
+            });
+        }
 
-    await cart.save();
-    res.json(cart);
+        cart.items = cart.items.filter(
+            (i) =>
+                i.product.toString() !== req.params.productId
+        );
+
+        await cart.save();
+
+        const updatedCart = await Cart.findOne({
+            user: req.user,
+        }).populate("items.product");
+
+        res.json(updatedCart);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
 });
 
 module.exports = router;

@@ -3,6 +3,7 @@ const router = express.Router();
 const Order = require("../models/Order");
 const Cart = require("../models/Cart");
 const protect = require("../middleware/authMiddleware");
+const admin = require("../middleware/adminMiddleware");
 
 router.post("/", protect, async (req, res) => {
     try {
@@ -58,5 +59,19 @@ router.get("/", protect, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+// 📊 ADMIN - GET ALL ORDERS
+router.get("/admin", protect, admin, async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate("user", "name email")
+            .populate("items.product");
 
+        res.json(orders);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});
 module.exports = router;

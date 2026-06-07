@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const productRoutes = require("./routes/productRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 
 dotenv.config();
@@ -42,6 +43,8 @@ const PORT = process.env.PORT || 5000;
 const userRoutes = require("./routes/userRoutes");
 
 app.use("/api/users", userRoutes);
+
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

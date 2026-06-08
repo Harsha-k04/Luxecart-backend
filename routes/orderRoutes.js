@@ -74,4 +74,29 @@ router.get("/admin", protect, admin, async (req, res) => {
         });
     }
 });
+// ADMIN - UPDATE ORDER STATUS
+router.put("/admin/:id", protect, admin, async (req, res) => {
+    try {
+        const { status } = req.body;
+
+        const order = await Order.findById(req.params.id);
+
+        if (!order) {
+            return res.status(404).json({
+                message: "Order not found",
+            });
+        }
+
+        order.status = status;
+
+        await order.save();
+
+        res.json(order);
+
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+});
 module.exports = router;
